@@ -12,8 +12,9 @@ The preprocessing steps include:
 
 The following visualizations are generated:
 1. Pie chart comparing the mean CTR between the control and test groups.
-2. Pie chart comparing the mean CR between the control and test groups.
-3. Scatter plots showing relationships between different metrics, with linear regression lines fitted to the data.
+<img width="415" alt="Screenshot 2024-01-23 at 2 10 08 PM" src="https://github.com/clarencemarvin/A-B-Testing/assets/124359735/eac07aee-772c-4b88-a6ae-065d5c10bad6">
+3. Pie chart comparing the mean CR between the control and test groups.
+4. Scatter plots showing relationships between different metrics, with linear regression lines fitted to the data.
 
 ## The Purpose of A/B Testing Project
 

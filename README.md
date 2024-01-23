@@ -15,7 +15,7 @@ The following visualizations are generated:
 2. Pie chart comparing the mean CR between the control and test groups.
 3. Scatter plots showing relationships between different metrics, with linear regression lines fitted to the data.
 
-## Purpose and Real-World Application
+## The Purpose of A/B Testing Project
 
 The purpose of this A/B testing analysis code is to provide marketers, data analysts, and decision-makers with clear insights into the performance of two different marketing campaign strategies: the control group (using existing marketing tactics) and the test group (where new strategies are applied). A/B testing is a powerful tool used in various industries to compare two versions of a product, advertisement, web page, or other marketing assets to determine which one performs better in terms of user engagement, conversion rates, and other key metrics.
 

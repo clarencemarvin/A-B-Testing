@@ -1,0 +1,133 @@
+library(dplyr)
+library(ggplot2)
+
+# Load data
+control_data <- read.csv("control_group.csv", sep = ";")
+test_data <- read.csv("test_group.csv", sep = ";")
+
+# Renaming columns for consistency
+control_data <- control_data %>%
+  rename(Campaign.Name = `Campaign Name`,
+         Date = Date, 
+         Amount.Spent = `Amount Spent`,
+         Number.of.Impressions = `Number of Impressions`,
+         Reach = Reach,
+         Website.Clicks = `Website Clicks`,
+         Searches.Received = `Searches Received`,
+         Content.Viewed = `Content Viewed`,
+         Added.to.Cart = `Added to Cart`,
+         Purchases = Purchases)
+
+test_data <- test_data %>%
+  rename(Campaign.Name = `Campaign Name`,
+         Date = Date, 
+         Amount.Spent = `Amount Spent`,
+         Number.of.Impressions = `Number of Impressions`,
+         Reach = Reach,
+         Website.Clicks = `Website Clicks`,
+         Searches.Received = `Searches Received`,
+         Content.Viewed = `Content Viewed`,
+         Added.to.Cart = `Added to Cart`,
+         Purchases = Purchases)
+
+# Check for missing values
+print("Missing values in control data:")
+print(colSums(is.na(control_data)))
+print("Missing values in test data:")
+print(colSums(is.na(test_data)))
+
+# Fill missing values in control_data with mean values
+# Using mutate and ifelse for a cleaner approach
+control_data <- control_data %>%
+  mutate_at(vars(Number.of.Impressions, Reach, Website.Clicks, Searches.Received, Content.Viewed, Added.to.Cart, Purchases), 
+            funs(ifelse(is.na(.), mean(., na.rm = TRUE), .)))
+
+# Merge control_data with test_data and sort by "Date"
+# Specifying the by parameter to avoid errors
+ab_data <- merge(control_data, test_data, by = c("Campaign.Name", "Date", "Amount.Spent", "Number.of.Impressions", "Reach", "Website.Clicks", "Searches.Received", "Content.Viewed", "Added.to.Cart", "Purchases"), all = TRUE)
+ab_data <- ab_data %>% arrange(Date)
+head(ab_data, n = 5)
+
+# Calculate CTR and CR for both datasets
+control_data <- control_data %>%
+  mutate(CTR = Website.Clicks / Number.of.Impressions,
+         CR = Purchases / Website.Clicks)
+
+test_data <- test_data %>%
+  mutate(CTR = Website.Clicks / Number.of.Impressions,
+         CR = Purchases / Website.Clicks)
+
+# Combine control and test data and arrange by Date
+ab_data <- rbind(control_data, test_data) %>%
+  arrange(Date) %>%
+  mutate(Campaign.Name = ifelse(Campaign.Name == "Control Campaign", "Control", "Test"))
+
+# Create a dataframe for the pie chart with mean CTR
+pie_data_ctr <- data.frame(
+  label = c("Control", "Test"),
+  counts = c(mean(control_data$CTR, na.rm = TRUE), mean(test_data$CTR, na.rm = TRUE))
+)
+
+# Pie chart for CTR using ggplot2
+ggplot(pie_data_ctr, aes(x = "", y = counts, fill = label)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Control Vs Test: Click-Through Rate (CTR)") +
+  theme_void() +
+  theme(legend.position = "none") +
+  geom_text(aes(label = sprintf("%0.2f%%", counts * 100)),
+            position = position_stack(vjust = 0.5))
+
+# Create a dataframe for the pie chart with mean CR
+pie_data_cr <- data.frame(
+  label = c("Control", "Test"),
+  counts = c(mean(control_data$CR, na.rm = TRUE), mean(test_data$CR, na.rm = TRUE))
+)
+
+# Pie chart for CR using ggplot2
+ggplot(pie_data_cr, aes(x = "", y = counts, fill = label)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = c('white', 'lightblue')) +
+  labs(title = "Control Vs Test: Conversion Rate (CR)") +
+  theme_void() +
+  theme(legend.position = "none") +
+  geom_text(aes(label = sprintf("%0.2f%%", counts * 100)),
+            position = position_stack(vjust = 0.5))
+
+# Scatter plot for Content Viewed vs. Website Clicks
+scatter1 <- ggplot(ab_data, aes(x = `Content Viewed`, y = `Website Clicks`, size = `Website Clicks`, color = `Campaign.Name`)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(range = c(1, 10)) +
+  scale_color_manual(values = c("Control" = "lightblue", "Test" = "lightcoral")) +
+  ggtitle("Content Viewed vs. Website Clicks by Campaign") +
+  xlab("Content Viewed") +
+  ylab("Website Clicks") +
+  theme_bw() +
+  geom_smooth(method = "lm", se = FALSE, color = "black")
+scatter1
+
+# Scatter plot for Added to Cart vs. Content Viewed
+scatter2 <- ggplot(ab_data, aes(x = `Added to Cart`, y = `Content Viewed`, size = `Added to Cart`, color = `Campaign.Name`)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(range = c(1, 10)) +
+  scale_color_manual(values = c("Control" = "lightblue", "Test" = "lightcoral")) +
+  ggtitle("Added to Cart vs. Content Viewed by Campaign") +
+  xlab("Added to Cart") +
+  ylab("Content Viewed") +
+  theme_bw() +
+  geom_smooth(method = "lm", se = FALSE, color = "black")
+scatter2
+
+# Scatter plot for Purchases vs. Added to Cart
+scatter3 <- ggplot(ab_data, aes(x = `Purchases`, y = `Added to Cart`, size = `Purchases`, color = `Campaign.Name`)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(range = c(1, 10)) +
+  scale_color_manual(values = c("Control" = "lightblue", "Test" = "lightcoral")) +
+  ggtitle("Purchases vs. Added to Cart by Campaign") +
+  xlab("Purchases") +
+  ylab("Added to Cart") +
+  theme_bw() +
+  geom_smooth(method = "lm", se = FALSE, color = "black")
+scatter3

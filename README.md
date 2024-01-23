@@ -1,4 +1,4 @@
-# A/B-Testing
+# A/B Testing
 This repository contains R code for preprocessing and analyzing A/B testing data from two groups: a control group and a test group. The objective is to compare key performance indicators (KPIs) between the two groups, specifically Click-Through Rate (CTR) and Conversion Rate (CR). Additionally, I provide visualizations to understand the impact of different metrics on the website performance. A/B testing is an iterative process. The insights gained from this round of testing should inform the design of subsequent experiments. The ultimate goal is to achieve an optimized balance of high user engagement with strong conversion rates, ensuring that clicks lead to revenue. A/B testing is not a one-time event but a continuous improvement tool that can help refine marketing strategies over time.
 
 The analysis will process two CSV files as input:
